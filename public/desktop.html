@@ -378,6 +378,64 @@
             </div>
         </div>
     </div>
+    <div class="refresh-modal-overlay" id="refresh-modal-overlay">
+        <div class="refresh-modal-panel">
+            <h3>Device Change Detected!</h3>
+            <p>Would you like to refresh the page for a better, more immersive experience?</p>
+            <button class="btn btn-primary" id="refresh-modal-btn">Let's go!</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Resize Detection Logic ---
+        (function() {
+            // The width where you switch between mobile/desktop
+            const BREAKPOINT = 1024;
+            
+            // This is our lightweight "debounce" function
+            function debounce(func, delay) {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
+                };
+            }
+
+            // Determine if we are *currently* on the mobile or desktop version
+            let isCurrentlyMobile = false; // Since this is desktop.html
+            
+            // Get the modal elements
+            const modalOverlay = document.getElementById('refresh-modal-overlay');
+            const refreshButton = document.getElementById('refresh-modal-btn');
+
+            // This is the function that will run *after* the user stops resizing
+            const checkResize = () => {
+                const newWidth = window.innerWidth;
+
+                if (isCurrentlyMobile && newWidth >= BREAKPOINT) {
+                    // User was on mobile, but resized to be desktop-sized
+                    modalOverlay.classList.add('active');
+                } else if (!isCurrentlyMobile && newWidth < BREAKPOINT) {
+                    // User was on desktop, but resized to be mobile-sized
+                    modalOverlay.classList.add('active');
+                } else {
+                    // User resized, but stayed on the same "side" of the breakpoint
+                    modalOverlay.classList.remove('active');
+                }
+            };
+
+            // When the "Let's go!" button is clicked, reload the page.
+            // Your *original* redirect script will then catch the new size and load the correct file.
+            refreshButton.addEventListener('click', () => {
+                location.reload();
+            });
+
+            // Listen for the resize event, but "debounce" it by 500ms
+            window.addEventListener('resize', debounce(checkResize, 500));
+        })();
+    </script>
 
 
     <script src="js/config.js"></script>
